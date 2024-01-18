@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	viper.SetConfigFile("../../.env")
+	viper.SetConfigFile(".env")
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Fatalf("%s", err.Error())

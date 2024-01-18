@@ -31,6 +31,39 @@ func (u *User) BeforeSave(tx *gorm.DB) (err error) {
 	return
 }
 
+type StudentInfo struct {
+	ID         uint   `gorm:"primary_key;auto_increment" json:"id"`
+	StudID     int    `json:"stud_id"`
+	FName      string `json:"fname"`
+	LName      string `json:"lname"`
+	MName      string `json:"mname"`
+	NZK        string `json:"nzk"`
+	DOB        string `json:"dob"`
+	PersonID   int    `json:"person_id"`
+	Phone      string `json:"phone"`
+	Country    string `json:"country"`
+	NdsLogin   string `json:"nds_login"`
+	GName      string `json:"gname"`
+	FacName    string `json:"fname"`
+	SFName     string `json:"sfname"`
+	SGID       int    `json:"sg_id"`
+	FacID      int    `json:"fac_id"`
+	SFID       int    `json:"sf_id"`
+	Name1      string `json:"name1"`
+	Name2      string `json:"name2"`
+	Name3      string `json:"name3"`
+	SPName     string `json:"sp_name"`
+	SPParent   string `json:"sp_parent_name"`
+	Shifr      string `json:"shifr"`
+	CheefDolzn string `json:"cheef_dolzn"`
+	CheefName  string `json:"cheef_name"`
+	Course     int    `json:"course"`
+	EduForm    string `json:"edu_form"`
+	IsFilial   int    `json:"is_filial"`
+	SStatus    int    `json:"s_status"`
+	GStatus    int    `json:"g_status"`
+}
+
 type Employee struct {
 	ID           int        `gorm:"primary_key;auto_increment" json:"id"`
 	Name1        string     `json:"name1"`

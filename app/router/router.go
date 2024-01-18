@@ -7,5 +7,5 @@ import (
 )
 
 func RegisterHTTPEndpoints(router fiber.Router) {
-	router.Post("/login", Handlers.Login_Employee)
+	router.Post("/login", Handlers.Login)
 }
