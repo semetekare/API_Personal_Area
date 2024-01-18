@@ -17,6 +17,11 @@ type LoginResponse struct {
 	UserAccess string `json:"user_access"`
 }
 
+func Ok(c *fiber.Ctx) error {
+	c.Status(fiber.StatusOK)
+	return nil
+}
+
 func Login(c *fiber.Ctx) error {
 	request := new(LoginRequest)
 	if err := c.BodyParser(request); err != nil {

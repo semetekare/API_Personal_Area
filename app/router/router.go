@@ -8,4 +8,6 @@ import (
 
 func RegisterHTTPEndpoints(router fiber.Router) {
 	router.Post("/login", Handlers.Login)
+	router.Get("/Ok", Handlers.Ok)
+
 }
