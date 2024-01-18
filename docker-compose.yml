@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     container_name: app
     ports:
-      - '8000:8000'
+      - '8000:8090'
     env_file:
       - ./.env
     network_mode: host
