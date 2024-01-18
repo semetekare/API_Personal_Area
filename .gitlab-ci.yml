@@ -1,0 +1,133 @@
+default:
+  tags:
+    - "k8s"
+  image: docker:19.03.13
+  services:
+    - docker:19.03.13-dind
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+variables:
+  ROLLOUT_RESOURCE_TYPE: deployment
+  REVIEW_DISABLED: "true"
+  CANARY_ENABLED: "true"
+  KUBE_INGRESS_BASE_DOMAIN: "irgups.ru"
+  KUBE_INGRESS_DEV_BASE_DOMAIN: "k8s.irgups.ru"
+  KUBE_NAMESPACE: mobile-api
+  AUTO_BUILD_IMAGE_VERSION: 'v1.37.0'
+stages:
+  - build
+  - review  # off stage
+  - qa
+  - staging
+  - canary
+  - production
+  - incremental rollout 10%
+  - incremental rollout 25%
+  - incremental rollout 50%
+  - incremental rollout 100%
+  - cleanup  # off stage
+
+build:
+  stage: build
+  image: '${CI_TEMPLATE_REGISTRY_HOST}/gitlab-org/cluster-integration/auto-build-image:${AUTO_BUILD_IMAGE_VERSION}'
+  variables:
+    DOCKER_TLS_CERTDIR: ''
+  services:
+    - name: 'docker:20.10.12-dind'
+      command: ['--tls=false', '--host=tcp://0.0.0.0:2375']
+  script:
+    - |
+      if [[ -z "$CI_COMMIT_TAG" ]]; then
+        export CI_APPLICATION_REPOSITORY=${CI_APPLICATION_REPOSITORY:-$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG}
+        export CI_APPLICATION_TAG=${CI_APPLICATION_TAG:-$CI_COMMIT_SHA}
+      else
+        export CI_APPLICATION_REPOSITORY=${CI_APPLICATION_REPOSITORY:-$CI_REGISTRY_IMAGE}
+        export CI_APPLICATION_TAG=${CI_APPLICATION_TAG:-$CI_COMMIT_TAG}
+      fi
+    - /build/build.sh
+  artifacts:
+    reports:
+      dotenv: gl-auto-build-variables.env
+  rules:
+    - if: '$BUILD_DISABLED'
+      when: never
+    - if: '$AUTO_DEVOPS_PLATFORM_TARGET == "EC2"'
+      when: never
+    - if: '$CI_COMMIT_TAG || $CI_COMMIT_BRANCH'
+
+build_artifact:
+  stage: build
+  script:
+    - printf "To build your project, please create a build_artifact job into your .gitlab-ci.yml file.\nMore information at https://docs.gitlab.com/ee/ci/cloud_deployment\n"
+    - exit 1
+  rules:
+    - if: '$BUILD_DISABLED'
+      when: never
+    - if: '$AUTO_DEVOPS_PLATFORM_TARGET == "EC2"'
+
+
+
+.production_env_setup: &production_url
+  environment:
+    name: production
+    url: http://mobile-api.$KUBE_INGRESS_BASE_DOMAIN
+
+
+.qa_env_setup: &qa_setup
+  extends: .auto-deploy
+  stage: qa
+  when: manual
+  script:
+    - auto-deploy check_kube_domain
+    - auto-deploy download_chart
+    - auto-deploy ensure_namespace
+    - auto-deploy initialize_tiller
+    - auto-deploy create_secret
+    - auto-deploy deploy
+    
+
+qa01:
+  <<: *qa_setup
+  environment:
+    name: qa01
+    url: http://mobile-api.$KUBE_INGRESS_DEV_BASE_DOMAIN
+
+staging:
+  extends: .auto-deploy
+  <<: *production_url
+
+production_manual:
+  extends: .auto-deploy
+  <<: *production_url
+
+production:
+  extends: .auto-deploy
+  <<: *production_url
+
+canary:
+  extends: .auto-deploy
+  <<: *production_url
+
+
+rollout 10%:
+  extends: .auto-deploy
+  <<: *production_url
+
+rollout 25%:
+  extends: .auto-deploy
+  <<: *production_url
+
+rollout 50%:
+  extends: .auto-deploy
+  <<: *production_url
+
+rollout 100%:
+  extends: .auto-deploy
+  <<: *production_url
+
+
+include:
+  - template: Jobs/Deploy.gitlab-ci.yml
+
