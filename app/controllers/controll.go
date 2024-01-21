@@ -1,6 +1,7 @@
 package Handlers
 
 import (
+	"api_sotr/app/models"
 	"api_sotr/app/service"
 	"github.com/gofiber/fiber/v2"
 )
@@ -55,11 +56,44 @@ func Login(c *fiber.Ctx) error {
 					} else {
 
 						if (contains([]int{0, 3, 6, 7, 10, 12}, statusStud.SStatus) && statusStud.GStatus == 0) || statusStud.ID == 104929 {
-							return c.JSON(LoginResponse{
-								UserID:     int(statusStud.PersonID), //empID здесь
-								UserName:   evaName,
-								UserAccess: "allowed",
-							})
+							return c.JSON(
+								//	LoginResponse{
+								//	UserID:     int(statusStud.PersonID), //empID здесь
+								//	UserName:   evaName,
+								//	UserAccess: "allowed",
+								//})
+								models.StudentInfo{
+									ID:         statusStud.ID,
+									StudID:     statusStud.StudID,
+									FName:      statusStud.FName,
+									LName:      statusStud.LName,
+									MName:      statusStud.MName,
+									NZK:        statusStud.NZK,
+									DOB:        statusStud.DOB,
+									PersonID:   statusStud.PersonID,
+									Phone:      statusStud.Phone,
+									Country:    statusStud.Country,
+									NdsLogin:   statusStud.NdsLogin,
+									GName:      statusStud.GName,
+									FacName:    statusStud.FacName,
+									SFName:     statusStud.SFName,
+									SGID:       statusStud.SGID,
+									FacID:      statusStud.FacID,
+									SFID:       statusStud.SFID,
+									Name1:      statusStud.Name1,
+									Name2:      statusStud.Name2,
+									Name3:      statusStud.Name3,
+									SPName:     statusStud.SPName,
+									SPParent:   statusStud.SPParent,
+									Shifr:      statusStud.Shifr,
+									CheefDolzn: statusStud.CheefDolzn,
+									CheefName:  statusStud.CheefName,
+									Course:     statusStud.Course,
+									EduForm:    statusStud.EduForm,
+									IsFilial:   statusStud.IsFilial,
+									SStatus:    statusStud.SStatus,
+									GStatus:    statusStud.GStatus,
+								})
 						} else {
 							return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Похоже вас отчислили("})
 						}
