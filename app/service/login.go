@@ -32,7 +32,7 @@ func GetUvalStatesForEmpId(empID int) (int, error) {
 }
 
 // UserInfo предоставляет информацию являеться ли пользователь сотрудником.
-func EmployeeInfo(ndsLogin string) (bool, int, error) {
+func EmployeeInfo(ndsLogin string) (*models.Employee, error) {
 	db := models.DbSotr
 
 	var userCount int64
@@ -40,7 +40,7 @@ func EmployeeInfo(ndsLogin string) (bool, int, error) {
 		Where("nds_login = ? AND rol_id IS NOT NULL", ndsLogin).
 		Count(&userCount).Error
 	if err != nil {
-		return false, 0, err
+		return nil, err
 	}
 
 	var employee models.Employee
@@ -55,10 +55,10 @@ func EmployeeInfo(ndsLogin string) (bool, int, error) {
     `, ndsLogin).Scan(&employee).Error
 
 	if err != nil {
-		return false, 0, err
+		return nil, err
 	}
 
-	return userCount > 0, employee.ID, nil
+	return &employee, nil
 }
 
 func GetStudentInfo(studentID, mode int) (*models.StudentInfo, error) {

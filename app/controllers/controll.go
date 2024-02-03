@@ -57,11 +57,6 @@ func Login(c *fiber.Ctx) error {
 
 						if (contains([]int{0, 3, 6, 7, 10, 12}, statusStud.SStatus) && statusStud.GStatus == 0) || statusStud.ID == 104929 {
 							return c.JSON(
-								//	LoginResponse{
-								//	UserID:     int(statusStud.PersonID), //empID здесь
-								//	UserName:   evaName,
-								//	UserAccess: "allowed",
-								//})
 								models.StudentInfo{
 									ID:         statusStud.ID,
 									StudID:     statusStud.StudID,
@@ -101,20 +96,56 @@ func Login(c *fiber.Ctx) error {
 				}
 
 			case "employe":
-				if EmployeeInfo, empID, err := service.EmployeeInfo(evaName); err == nil {
-					if EmployeeInfo {
+				if EmployeeInfo, err := service.EmployeeInfo(evaName); err == nil {
+					if EmployeeInfo != nil {
 						// Пользователь является сотрудником
 
 						// Проверяем UvalStates для EmpID
-						if getUvalStatesForEmpId, err := service.GetUvalStatesForEmpId(empID); err == nil {
-							if getUvalStatesForEmpId == empID {
+						if getUvalStatesForEmpId, err := service.GetUvalStatesForEmpId(EmployeeInfo.ID); err == nil {
+							if getUvalStatesForEmpId == EmployeeInfo.ID {
 								// У пользователя есть информация о контракте/договоре
 
-								return c.JSON(LoginResponse{
-									UserID:     empID, //empID здесь
-									UserName:   evaName,
-									UserAccess: "allowed",
-								})
+								return c.JSON(
+									models.Employee{
+										ID:           EmployeeInfo.ID,
+										Name1:        EmployeeInfo.Name1,
+										Name2:        EmployeeInfo.Name2,
+										Name3:        EmployeeInfo.Name3,
+										NDSLogin:     EmployeeInfo.NDSLogin,
+										PersonID:     EmployeeInfo.PersonID,
+										EmpDolID:     EmployeeInfo.EmpDolID,
+										KafID:        EmployeeInfo.KafID,
+										FIO:          EmployeeInfo.FIO,
+										ADLogin:      EmployeeInfo.ADLogin,
+										UMUIDOld:     EmployeeInfo.UMUIDOld,
+										UMUID:        EmployeeInfo.UMUID,
+										BirLoc:       EmployeeInfo.BirLoc,
+										Comments:     EmployeeInfo.Comments,
+										DipDate:      EmployeeInfo.DipDate,
+										DipNum:       EmployeeInfo.DipNum,
+										DOB:          EmployeeInfo.DOB,
+										Family:       EmployeeInfo.Family,
+										FStatID:      EmployeeInfo.FStatID,
+										KladrString:  EmployeeInfo.KladrString,
+										KvalifyID:    EmployeeInfo.KvalifyID,
+										OutDoc:       EmployeeInfo.OutDoc,
+										PassDate:     EmployeeInfo.PassDate,
+										PassLoc:      EmployeeInfo.PassLoc,
+										Passport:     EmployeeInfo.Passport,
+										Phone:        EmployeeInfo.Phone,
+										Staj:         EmployeeInfo.Staj,
+										UZID:         EmployeeInfo.UZID,
+										PassportS:    EmployeeInfo.PassportS,
+										Sex:          EmployeeInfo.Sex,
+										StajIRGUPS:   EmployeeInfo.StajIRGUPS,
+										SecretAPIKey: EmployeeInfo.SecretAPIKey,
+										QRToken:      EmployeeInfo.QRToken,
+										Metaphone:    EmployeeInfo.Metaphone,
+										UpdatedAt:    EmployeeInfo.UpdatedAt,
+										CreatedAt:    EmployeeInfo.CreatedAt,
+										Base1C:       EmployeeInfo.Base1C,
+										Password:     EmployeeInfo.Password,
+									})
 
 							} else {
 								return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "У вас отсутствует информация о контракте/договоре для осуществления трудовой деятельности"})
